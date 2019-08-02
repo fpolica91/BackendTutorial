@@ -40,11 +40,12 @@ app.get('/api/courses/:id', (req, res) => {
 
 app.post('/api/courses', (req, res) => {
 
+    const { error } = validateCourse(req.body);
 
     // validation was extracted to function
-    if (result.error) {
+    if (error) {
         // this returns an user friendly error message
-        res.status(400).send(result.error.details[0].message)
+        res.status(400).send(error.details[0].message)
         return;
     }
 
@@ -65,14 +66,11 @@ app.put('/api/courses/:id', (req, res) => {
     const course = courses.find(crs => crs.id === parseInt(req.params.id))
     // if not exist return 404
     if (!course) res.status(404).send('invalid course')
-    // validate
-    const schema = {
-        name: Joi.string().min(3).required()
-    }
-    const resut = Joi.validate(req.body, schema)
-    //if invalid, return 404
-    if (result.error) {
-        res.status(404).send(result.error.details[0].message)
+
+    const { error } = validateCourse(req.body)
+
+    if (error) {
+        res.status(404).send(error.details[0].message)
     }
 
     //update course if tests pass
