@@ -39,17 +39,9 @@ app.get('/api/courses/:id', (req, res) => {
 
 
 app.post('/api/courses', (req, res) => {
-    // JOI SCHEMA
-    const schema = {
-        name: Joi.string().min(3).required()
-    }
-    // simple validation using JOI -> first create a schema then use the validate method passing params
-    // param1 is the value to validate, param 2 is schema defined
-    // for more info about JOI visit : https://www.npmjs.com/package/join
 
-    const result = Joi.validate(req.body, schema);
-    console.log(result)
 
+    // validation was extracted to function
     if (result.error) {
         // this returns an user friendly error message
         res.status(400).send(result.error.details[0].message)
@@ -67,11 +59,36 @@ app.post('/api/courses', (req, res) => {
     res.send(course)
 })
 
+// UPDATING COURSES -> PUT UPDATES
+app.put('/api/courses/:id', (req, res) => {
+    // look up courses with given id
+    const course = courses.find(crs => crs.id === parseInt(req.params.id))
+    // if not exist return 404
+    if (!course) res.status(404).send('invalid course')
+    // validate
+    const schema = {
+        name: Joi.string().min(3).required()
+    }
+    const resut = Joi.validate(req.body, schema)
+    //if invalid, return 404
+    if (result.error) {
+        res.status(404).send(result.error.details[0].message)
+    }
 
-// app.delete('/api/courses', (req, res) => {
-//     const course = courses.find(c => c.id === parseInt(req.params.id))
-//     courses.splice(courses.indexOf(course), 1)
-// })
+    //update course if tests pass
+    course.name = req.body.name;
+    // if other properties are given pass them here
+
+    //return course to client
+    res.send(course)
+})
+
+function validateCourse(course) {
+    const schema = {
+        name: Joi.string().min(3).required()
+    }
+    return Joi.validate(course, schema);
+}
 
 
 // there are no if statements, there are get rquests
