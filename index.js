@@ -33,6 +33,11 @@ app.get('/api/courses/:id', (req, res) => {
 // HANDLING HTTP POST REQUESTS TO CREATE A NEW COURSE AND ADD IT TO THE ARRAY OF COURSES
 
 app.post('/api/courses', (req, res) => {
+    // simple validation
+    if (!req.body.name || req.body.name.length) {
+        res.status(400).send('Name is required and minimum 3 character')
+        return;
+    }
     const course = {
         id: courses.length++,
         // remember we used express.json() -> middleware
