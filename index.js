@@ -29,7 +29,7 @@ app.get('/api/courses', (req, res) => {
 
 app.get('/api/courses/:id', (req, res) => {
     const course = courses.find(c => c.id === parseInt(req.params.id))
-    if (!course) res.status(404).send(`course with given ID was not found `) //404
+    if (!course) return res.status(404).send(`course with given ID was not found `) //404
     res.send(course)
 })
 
@@ -43,12 +43,8 @@ app.post('/api/courses', (req, res) => {
     const { error } = validateCourse(req.body);
 
     // validation was extracted to function
-    if (error) {
-        // this returns an user friendly error message
-        res.status(400).send(error.details[0].message)
-        return;
-    }
-
+    if (error) return res.status(400).send(error.details[0].message)
+    // this returns an user friendly error message
     const course = {
         id: courses.length + 1,
         // remember we used express.json() -> middleware
@@ -65,13 +61,12 @@ app.put('/api/courses/:id', (req, res) => {
     // look up courses with given id
     const course = courses.find(crs => crs.id === parseInt(req.params.id))
     // if not exist return 404
-    if (!course) res.status(404).send('invalid course')
+    if (!course) return res.status(404).send('invalid course')
 
     const { error } = validateCourse(req.body)
 
-    if (error) {
-        res.status(404).send(error.details[0].message)
-    }
+    if (error) return res.status(404).send(error.details[0].message)
+
 
     //update course if tests pass
     course.name = req.body.name;
@@ -87,6 +82,16 @@ function validateCourse(course) {
     }
     return Joi.validate(course, schema);
 }
+
+// DELETE COURSE
+app.delete('/api/courses/:id', (req, res) => {
+    const course = courses.find(crs => crs.id === parseInt(req.params.id))
+    if (!course) return res.status(404).send('invalid course')
+
+    const index = courses.indexOf(course)
+    courses.splice(index, 1)
+    res.send(course)
+})
 
 
 // there are no if statements, there are get rquests
