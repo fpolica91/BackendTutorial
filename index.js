@@ -1,4 +1,7 @@
 // require the module
+const Joi = require('joi')
+//-> Joi is  a class
+
 const express = require('express')
 const courses = [
     { id: 1, name: "Programming in Java" },
@@ -32,14 +35,29 @@ app.get('/api/courses/:id', (req, res) => {
 
 // HANDLING HTTP POST REQUESTS TO CREATE A NEW COURSE AND ADD IT TO THE ARRAY OF COURSES
 
+
+
+
 app.post('/api/courses', (req, res) => {
-    // simple validation
-    if (!req.body.name || req.body.name.length) {
-        res.status(400).send('Name is required and minimum 3 character')
+    // JOI SCHEMA
+    const schema = {
+        name: Joi.string().min(3).required()
+    }
+    // simple validation using JOI -> first create a schema then use the validate method passing params
+    // param1 is the value to validate, param 2 is schema defined
+    // for more info about JOI visit : https://www.npmjs.com/package/join
+
+    const result = Joi.validate(req.body, schema);
+    console.log(result)
+
+    if (result.error) {
+        // this returns an user friendly error message
+        res.status(400).send(result.error.details[0].message)
         return;
     }
+
     const course = {
-        id: courses.length++,
+        id: courses.length + 1,
         // remember we used express.json() -> middleware
         name: req.body.name
     }
@@ -50,10 +68,10 @@ app.post('/api/courses', (req, res) => {
 })
 
 
-app.delete('/api/courses', (req, res) => {
-    const course = courses.find(c => c.id === parseInt(req.params.id))
-    courses.splice(courses.indexOf(course), 1)
-})
+// app.delete('/api/courses', (req, res) => {
+//     const course = courses.find(c => c.id === parseInt(req.params.id))
+//     courses.splice(courses.indexOf(course), 1)
+// })
 
 
 // there are no if statements, there are get rquests
